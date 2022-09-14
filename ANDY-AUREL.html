@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="ANDY-AUREL.css">
+</head>
+<body>
+<div class="todeo">
+    <div class="colonne" id="liste">
+
+        <div id="grille">
+
+        <div class="case" id="case0"></div>
+        <div class="case" id="case1"></div>
+        <div class="case" id="case2"></div>
+        <div class="case" id="case3"></div>
+
+        <div class="case" id="case4"></div>
+        <div class="case" id="case5"></div>
+        <div class="case" id="case6"></div>
+        <div class="case" id="case7"></div>
+
+        <div class="case" id="case8"></div>
+        <div class="case" id="case9"></div>
+        <div class="case" id="case10"></div>
+        <div class="case" id="case11"></div>
+
+        <div class="case" id="case12"></div>
+        <div class="case" id="case13"></div>
+        <div class="case" id="case14"></div>
+        <div class="case" id="case15"></div>
+
+        </div>
+
+</div>
+
+<div class="text">
+
+        Vous avez trois minutes,<br />soit <span style="color:#CC3300;">180 secondes :</span>
+
+        <br/><br /><br />
+
+        <span style="font-size:18px;font-weight:normal;">Votre score:
+
+            <br />
+
+            <div id="score" style="font-size:30px;"><strong>10</strong>/10</div>
+
+            <br /><br />
+
+            <div id="temps" style="font-size:20px;"></div>
+            
+            <br />
+<!-- 
+    location = se referer a la page web en cours
+    reaload = rafraichir la page du navigateur  -->
+            <input type="button" class="btn" value="Nouvelle partie" onClick="location.reload()" />
+
+        </span>
+
+</div>       
+</div>
+
+<script>
+
+// Nombre de clics (premiere image cliquée + deuxieme image cliquée)
+var nb_clics = 0;   
+
+var mini1 = ""; var mini2 = "";
+
+// Pour s'assurer que l'utilisateur ne clique pas deux fois sur la meme case
+var case1= ""; var case2 = "";
+
+// Nombre d'images trouvées
+var img_ok = 0;
+
+// Nombre d'erreurs
+var nb_erreurs = 0;
+
+var le_score = 0;
+
+// permettra de bloquer ou débloquer le clic (départ ou les images sont dévoilées + temps d'attente entre deux images dévoilées)
+var depart = false; 
+
+// limitation de temps ( des le chargement de la page, l'heure a la miliseconde pres est récupérée pour faire la différence avec lheure en miliseconde a la fin de la partie)
+var temps_debut = new Date().getTime();
+
+
+
+
+// Fonction pour afficher les images et les masquer en début de partie selon un temps en miliseconde
+generation();
+
+var attente = setTimeout(function()
+{
+// i = numéro de case de 1 a 15
+    for (var i=0;i<16;i++)
+    {
+// pour masquer toutes les images
+        document.getElementById('img' + i).src = "mini/miniz.png";
+    }
+// comptabilisation des clics
+        depart = true;
+// laps de temps a attendre avant d'éffectuer la fonction (non encapsulé entre les bornes d une fonction donc son traitement se fera a chaque actualisation de la page)
+},4000);
+
+
+
+// fonction qui permet de verifier si les images correspondent generer des cartes aléatoirement
+function generation()
+{
+    var nb_alea; var nb_img="";
+    var test = true; var chaine = "";
+
+    for (var i=0;i<16;i++)
+    {
+        while (test==true)
+        {
+            nb_alea = Math.floor(Math.random()*16) + 1;
+
+                if(chaine.indexOf("-" + nb_alea + "-")>-1)
+                    nb_alea = Math.floor(Math.random()*16) + 1;
+
+                else
+                {
+                    nb_img = Math.floor((nb_alea+1)/2);                    
+                    document.getElementById('case' + i).innerHTML = "<img style='cursor:pointer; height:70px; width:70px; margin-top:3px' id='img" + i + "' src='mini/mini" + nb_img + ".png' onClick='verifier(\"img" + i + "\",\"mini" + nb_img + "\")' alt='' />";
+                    chaine += "-" + nb_alea + "-";
+                    test=false;
+                }
+        }
+        test=true;
+    }
+}
+
+// permet de valider ou non les paires choisies par l'utilisateur  limg= designe le nom de l'image cliquée
+//                                                                 source= ne valide pas lorsque l'on clique sur la meme case
+function verifier(limg,source)
+{
+    if(depart==true)
+    {
+        nb_clics++;
+// .src = propriété pour un controle HTML img qui permet de definir la source tout en reconstruisant son chemin d'accès en relatif
+        document.getElementById(limg).src = "mini/" + source + ".png";
+
+        if(nb_clics == 1)
+        {
+            mini1 = source;
+            case1 = limg;
+        }
+        else
+        {
+            mini2=source;
+            case2 = limg;
+            
+            if(case1!=case2)
+            {
+                depart=false;
+
+                if(mini1 != mini2)
+                {
+                    var attente = setTimeout(function()
+                    {
+                        document.getElementById(case1).src = "mini/miniz.png";
+                        document.getElementById(case2).src = "mini/miniz.png";
+                        depart=true;
+                        nb_clics=0;
+                        nb_erreurs ++;
+
+                        if(nb_erreurs<11) le_score = 10 - nb_erreurs;
+                        document.getElementById("score").innerHTML = "<strong>" + le_score + "</strong>/10";
+                    },1000);
+                }
+                else
+                {
+                    depart=true;
+                    nb_clics=0;
+                    img_ok += 2;
+
+                    if(img_ok==16)
+                    {
+                        var dif_temps = Math.floor((new Date().getTime() - temps_debut)/1000);
+                        document.getElementById("score").innerHTML ="<strong>" + le_score + "</strong>/10";
+                        document.getElementById("temps").innerHTML = "Vous avez mis <strong>" + dif_temps + "</strong> secondes";
+                    }
+                }
+            }
+            else
+            {
+                if(nb_clics==2) nb_clics=1;
+            }
+            if(dif_temps>180)
+            {
+                document.getElementById("temps").innerHTML = "Le temps imparti est dépassé, vous avez perdu"
+                depart = false;
+            }
+        }
+    }
+}
+
+</script>
+
+</body>
+</html>
